@@ -1,0 +1,11 @@
+[gd_scene load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://addons/nxr/scripts/npc/RagdollGuy.cs" id="1_guy"]
+
+[node name="Guy" type="Node3D"]
+script = ExtResource("1_guy")
+_bodyScale = 1.0
+_totalMass = 34.0
+_randomizeColor = true
+_canStand = true
+_wander = true
