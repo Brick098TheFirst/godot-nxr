@@ -1,0 +1,111 @@
+[gd_scene load_steps=14 format=3]
+
+[ext_resource type="Script" path="res://addons/nxr/scripts/firearm/Firearm.cs" id="1_firearm"]
+[ext_resource type="Script" path="res://addons/nxr/scripts/interactable/components/InteractableGrab.cs" id="2_grab"]
+[ext_resource type="Script" path="res://addons/nxr/scripts/firearm/components/FirearmMag.cs" id="3_mag"]
+[ext_resource type="Script" path="res://addons/nxr/scripts/hand/HandPose.cs" id="4_handpose"]
+[ext_resource type="Script" path="res://addons/nxr/scripts/npc/GuySpawner.cs" id="5_guyspawner"]
+[ext_resource type="PackedScene" path="res://demo/npc/guy.tscn" id="6_guy"]
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_body"]
+size = Vector3(0.075, 0.19, 0.34)
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_shell"]
+albedo_color = Color(0.94, 0.4, 0.12, 1)
+roughness = 0.55
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_dark"]
+albedo_color = Color(0.13, 0.14, 0.17, 1)
+roughness = 0.7
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_accent"]
+albedo_color = Color(0.98, 0.85, 0.16, 1)
+roughness = 0.4
+metallic = 0.3
+
+[sub_resource type="BoxMesh" id="BoxMesh_shell"]
+size = Vector3(0.07, 0.09, 0.26)
+
+[sub_resource type="BoxMesh" id="BoxMesh_grip"]
+size = Vector3(0.05, 0.14, 0.06)
+
+[sub_resource type="CylinderMesh" id="CylinderMesh_barrel"]
+top_radius = 0.045
+bottom_radius = 0.03
+height = 0.14
+radial_segments = 16
+rings = 1
+
+[node name="GuySpawner" type="RigidBody3D"]
+collision_layer = 8
+script = ExtResource("1_firearm")
+_roundPerMinute = 240
+_startChambered = true
+_chamberOnFire = true
+_recoilKick = Vector3(0, 0, 0.18)
+_recoilRise = Vector3(12, 0, 0)
+_kickRecoverSpeed = 0.15
+_riseRecoverSpeed = 0.15
+
+[node name="InteractableGrab" type="Node" parent="."]
+script = ExtResource("2_grab")
+_twoHanded = true
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.02, -0.02)
+shape = SubResource("BoxShape3D_body")
+
+[node name="FirearmMag" type="RigidBody3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0)
+freeze = true
+script = ExtResource("3_mag")
+_internal = true
+_infinite = true
+MaxAmmo = 999
+CurrentAmmo = 999
+
+[node name="Visual" type="Node3D" parent="."]
+
+[node name="Shell" type="MeshInstance3D" parent="Visual"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.02, -0.05)
+mesh = SubResource("BoxMesh_shell")
+material_override = SubResource("StandardMaterial3D_shell")
+
+[node name="Grip" type="MeshInstance3D" parent="Visual"]
+transform = Transform3D(1, 0, 0, 0, 0.965926, 0.258819, 0, -0.258819, 0.965926, 0, -0.075, 0.045)
+mesh = SubResource("BoxMesh_grip")
+material_override = SubResource("StandardMaterial3D_dark")
+
+[node name="Barrel" type="MeshInstance3D" parent="Visual"]
+transform = Transform3D(1, 0, 0, 0, 0, -1, 0, 1, 0, 0, 0.02, -0.24)
+mesh = SubResource("CylinderMesh_barrel")
+material_override = SubResource("StandardMaterial3D_accent")
+
+[node name="Trigger" type="MeshInstance3D" parent="Visual"]
+transform = Transform3D(0.3, 0, 0, 0, 0.3, 0, 0, 0, 0.3, 0, -0.03, 0.015)
+mesh = SubResource("BoxMesh_grip")
+material_override = SubResource("StandardMaterial3D_dark")
+
+[node name="Muzzle" type="Node3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.02, -0.31)
+script = ExtResource("5_guyspawner")
+_guyScene = ExtResource("6_guy")
+_spawnDistance = 0.75
+_launchSpeed = 5.0
+_spread = 0.08
+_upwardBoost = 1.5
+_maxGuys = 12
+_spawnUpright = true
+
+[node name="HandPose" type="RemoteTransform3D" parent="." node_paths=PackedStringArray("_interactable")]
+transform = Transform3D(1, 0, 0, 0, 0.965926, 0.258819, 0, -0.258819, 0.965926, 0, -0.055, 0.05)
+script = ExtResource("4_handpose")
+_interactable = NodePath("..")
+_pose = "poses_pistol/pgrip"
+
+[node name="SecondaryHandPose" type="RemoteTransform3D" parent="." node_paths=PackedStringArray("_interactable")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.02, -0.14)
+script = ExtResource("4_handpose")
+_interactable = NodePath("..")
+_pose = "poses_pistol/sgrip"
+_grabPose = 1

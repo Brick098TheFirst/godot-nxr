@@ -1,4 +1,4 @@
-[gd_scene load_steps=106 format=4 uid="uid://de5mtyewlytyu"]
+[gd_scene load_steps=110 format=4 uid="uid://de5mtyewlytyu"]
 
 [ext_resource type="Script" path="res://addons/nxr/scripts/player/PlayerSpawn.cs" id="1_b3yje"]
 [ext_resource type="Texture2D" uid="uid://5oork2oun5d4" path="res://addons/nxr/assets/textures/EveningSkyHDRI017B_4K-HDR.exr" id="2_ub05x"]
@@ -39,6 +39,7 @@
 [ext_resource type="AudioStream" uid="uid://p1x7lrb2chux" path="res://addons/nxr/assets/audio/sfx/ambience/range_ambience.ogg" id="30_uk2gg"]
 [ext_resource type="PackedScene" uid="uid://c47iwb4c6irhj" path="res://demo/scenes/ui/ui_settings.tscn" id="38_t5ba3"]
 [ext_resource type="PackedScene" uid="uid://b77pvypdjl8ha" path="res://addons/nxr/scenes/ui/Viewport2dIn3D.tscn" id="39_07qxr"]
+[ext_resource type="PackedScene" path="res://demo/firearms/guy_spawner.tscn" id="40_guyspwn"]
 
 [sub_resource type="PanoramaSkyMaterial" id="PanoramaSkyMaterial_fohs8"]
 panorama = ExtResource("2_ub05x")
@@ -763,6 +764,25 @@ viewport_path = NodePath("SubViewport")
 cull_mode = 2
 albedo_texture = SubResource("ViewportTexture_odcxx")
 
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_guyshell"]
+albedo_color = Color(0.94, 0.4, 0.12, 1)
+roughness = 0.55
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_guyaccent"]
+albedo_color = Color(0.98, 0.85, 0.16, 1)
+metallic = 0.3
+roughness = 0.4
+
+[sub_resource type="BoxMesh" id="BoxMesh_guyshell"]
+size = Vector3(0.07, 0.09, 0.26)
+
+[sub_resource type="CylinderMesh" id="CylinderMesh_guybarrel"]
+top_radius = 0.045
+bottom_radius = 0.03
+height = 0.14
+radial_segments = 16
+rings = 1
+
 [node name="Level" type="Node3D"]
 
 [node name="PlayerSpawn" type="Marker3D" parent="."]
@@ -1415,6 +1435,33 @@ Screen = NodePath("MeshInstance3D")
 [node name="MeshInstance3D" type="MeshInstance3D" parent="2DViewportIn3D"]
 mesh = SubResource("QuadMesh_qpu15")
 surface_material_override/0 = SubResource("StandardMaterial3D_5p06k")
+
+[node name="GuySpawnerGrabSpawn" type="RigidBody3D" parent="Geometry/EquipArea"]
+transform = Transform3D(1, 0, 0, 0, -4.37114e-08, -1, 0, 1, -4.37114e-08, -5.63254, 1.02832, -1.9)
+freeze = true
+script = ExtResource("10_8x156")
+_scene = ExtResource("40_guyspwn")
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="Geometry/EquipArea/GuySpawnerGrabSpawn"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.0251899, -0.0256879)
+shape = SubResource("BoxShape3D_e2wbb")
+
+[node name="Shell" type="MeshInstance3D" parent="Geometry/EquipArea/GuySpawnerGrabSpawn"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.02, -0.05)
+mesh = SubResource("BoxMesh_guyshell")
+material_override = SubResource("StandardMaterial3D_guyshell")
+
+[node name="Barrel" type="MeshInstance3D" parent="Geometry/EquipArea/GuySpawnerGrabSpawn"]
+transform = Transform3D(1, 0, 0, 0, 0, -1, 0, 1, 0, 0, 0.02, -0.24)
+mesh = SubResource("CylinderMesh_guybarrel")
+material_override = SubResource("StandardMaterial3D_guyaccent")
+
+[node name="GuySpawnerLabel" type="Label3D" parent="Geometry/EquipArea"]
+transform = Transform3D(-4.37114e-08, 0, 1, 0, 1, 0, -1, 0, -4.37114e-08, -5.6, 1.33, -1.9)
+pixel_size = 0.0016
+text = "GUY SPAWNER
+grab it, pull the trigger, make guys"
+horizontal_alignment = 0
 
 [connection signal="body_entered" from="Geometry/Killhouse/StartArea" to="Geometry/Killhouse" method="_on_start_area_body_entered"]
 [connection signal="body_entered" from="Geometry/Killhouse/EndArea" to="Geometry/Killhouse" method="_on_end_area_body_entered"]
